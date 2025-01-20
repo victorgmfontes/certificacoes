@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portfólio de Certificados</title>
- <style>
+    <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
@@ -17,6 +17,23 @@
             background-color: #8B0000;
             color: white;
             padding: 20px;
+            display: flex;
+            align-items: center;  /* Alinha o conteúdo verticalmente */
+            justify-content: space-between;  /* Espaça o conteúdo da esquerda para a direita */
+        }
+
+        .logo-container {
+            display: flex;
+            gap: 10px;  /* Define o espaço entre as imagens */
+        }
+
+        .logo {
+            height: 40px;  /* Ajuste o tamanho das logomarcas conforme necessário */
+            width: auto;
+        }
+
+        h1 {
+            margin-left: 10px;
         }
 
         .certificados {
@@ -57,16 +74,13 @@
             font-size: 16px;
             color: #333;
         }
-       .total-horas {
+
+        .total-horas {
             font-weight: bold;
             font-size: 20px;
             color: #8B0000;
         }
 
-         .tag {
-        color: red; /* Define a cor da TAG como vermelha */
-        font-weight: bold;
-    }
         @media (max-width: 600px) {
             #listaConhecimentos {
                 text-align: center;
@@ -77,6 +91,11 @@
 </head>
 <body>
     <header>
+        <div class="logo-container">
+            <img src="https://i.imgur.com/VEkok6b.png" alt="Logomarca 1" class="logo">
+            <img src="https://i.imgur.com/QGHe3Dh.png" alt="Logomarca 2" class="logo">
+            <img src="https://i.imgur.com/1kjeTf9.png" alt="Logomarca 3" class="logo">
+        </div>
         <h1>Victor Fontes</h1>
     </header>
     <p class="total-horas">Profissional Oriundo da Saúde com total de: <span id="totalHoras">0</span>hrs acumuladas</p>
@@ -142,7 +161,7 @@
 
                 const horasTexto = certificado.horas > 0 ? `${certificado.horas}h` : "";
 
-                div.innerHTML = `
+                div.innerHTML = ` 
                     <iframe src="https://drive.google.com/file/d/${certificado.id}/preview?usp=sharing"></iframe>
                     <p><span class="tag">${certificado.tag}</span> ${certificado.nome} ${horasTexto}</p>
                     <p>Data de Conclusão: ${certificado.dataConclusao.toLocaleDateString("pt-BR")}</p>
@@ -152,6 +171,9 @@
 
                 container.appendChild(div);
             });
+
+            // Ajuste a altura do iframe após o carregamento
+            ajustarAlturaIframe();
 
         } catch (error) {
             console.error("Erro ao carregar certificados:", error);
@@ -167,6 +189,7 @@
         }
         return null;
     }
+
     function ajustarAlturaIframe() {
         const iframes = document.querySelectorAll('iframe');
         iframes.forEach(iframe => {
@@ -176,13 +199,13 @@
         });
     }
 
-    // Chame a função de ajuste após o carregamento dos certificados
+    // Chame a função de ajuste após o carregamento da página
     window.addEventListener('load', ajustarAlturaIframe);
 
-    // Opcional: Ajuste após o redimensionamento da janela
+    // Ajuste após o redimensionamento da janela
     window.addEventListener('resize', ajustarAlturaIframe);
-    carregarCertificados();
 
+    carregarCertificados();
     </script>
 </body>
 </html>
