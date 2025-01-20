@@ -167,9 +167,6 @@
         }
         return null;
     }
-
-    carregarCertificados();
-<script>
     function ajustarAlturaIframe() {
         const iframes = document.querySelectorAll('iframe');
         iframes.forEach(iframe => {
@@ -184,7 +181,7 @@
 
     // Opcional: Ajuste após o redimensionamento da janela
     window.addEventListener('resize', ajustarAlturaIframe);
-</script>
+    carregarCertificados();
 
     </script>
 </body>
