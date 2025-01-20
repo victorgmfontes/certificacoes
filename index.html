@@ -169,6 +169,23 @@
     }
 
     carregarCertificados();
+<script>
+    function ajustarAlturaIframe() {
+        const iframes = document.querySelectorAll('iframe');
+        iframes.forEach(iframe => {
+            // Ajuste a altura do iframe baseado na sua largura (proporção do PDF)
+            const largura = iframe.offsetWidth;
+            iframe.style.height = (largura * 1.4) + 'px';  // Ajuste a proporção conforme necessário
+        });
+    }
+
+    // Chame a função de ajuste após o carregamento dos certificados
+    window.addEventListener('load', ajustarAlturaIframe);
+
+    // Opcional: Ajuste após o redimensionamento da janela
+    window.addEventListener('resize', ajustarAlturaIframe);
+</script>
+
     </script>
 </body>
 </html>
