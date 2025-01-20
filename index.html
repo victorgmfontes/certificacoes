@@ -35,16 +35,16 @@
             margin: 10px 0;
         }
 
-        .certificado canvas {
-            border: 1px solid #ccc;
-            margin-top: 20px;
-            max-width: 100%;
-            box-sizing: border-box;
-        }
-        
         .tag {
             font-weight: bold;
             color: #007BFF;
+        }
+
+        .total-horas {
+            font-size: 1.2em;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 30px;
         }
     </style>
 </head>
@@ -55,75 +55,79 @@
     <!-- Lista de Certificados -->
     <div id="certificados"></div>
 
-    <!-- Inclua o PDF.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
-
     <script>
-        // Dados CSV simulados
-        const certificados = [
-            { TAG: 'Diploma', Nome: 'Técnico de Enfermagem', Horas: '1600', ID: '1bFUZpcSkLM5pb0MYLp1mcsIM1QOnPjlh', Data: '30/05/2024' },
-            { TAG: 'Palestra', Nome: 'Bases legais para abertura de consultórios e clínicas de Enfermagem', Horas: '01', ID: '1iE6bWWBJkxqRjCqUUVxjxG9SKp9ZAIcE', Data: '13/06/2024' },
-            { TAG: 'Registro', Nome: 'COREN-PE 2094325-TE', Horas: '', ID: '1ka2pfbw5INDevaa3mxQnSu7oqG9vLU49', Data: '17/06/2024' },
-            { TAG: 'Curso', Nome: 'Parada Cardiorrespiratória e Indução de Consciência por RCP', Horas: '10', ID: '1sQV8rZwnBSbvXUi26fJbrX44jS_f9rFX', Data: '26/06/2024' },
-            { TAG: 'Curso', Nome: 'Trauma na Pediatria', Horas: '10', ID: '1gW-a_SiBS-mAF4yqvJojztQ2df8_IfGP', Data: '13/06/2024' }
-        ];
+        // URL pública do CSV da planilha
+        const urlCSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQWF5hRoi8gk3ERKeCSEBfiOtuCf9cTzX6pgQwp2Z_Uo4gYqE_aojJ9kaljHkSNRY8Fbq_4dY-52tn_/pub?output=csv';
 
-        // Função para renderizar cada certificado
-        function renderCertificados(certificados) {
+        // Função para processar os dados CSV e renderizar os certificados
+        function carregarCertificados() {
+            fetch(urlCSV)
+                .then(response => response.text())
+                .then(data => {
+                    const linhas = data.split('\n');
+                    const certificados = [];
+                    let totalHoras = 0;
+
+                    // Processa cada linha do CSV (ignorando a primeira linha que é o cabeçalho)
+                    for (let i = 1; i < linhas.length; i++) {
+                        const colunas = linhas[i].split(',');
+                        if (colunas.length < 5) continue; // Ignora linhas incompletas
+
+                        const TAG = colunas[0].trim();
+                        const Nome = colunas[1].trim();
+                        const Horas = colunas[2].trim();
+                        const ID = colunas[3].trim();
+                        const Data = colunas[4].trim();
+
+                        if (!Nome || !ID || !Data) continue; // Ignora certificados sem nome, ID ou data
+
+                        // Adiciona certificado ao array
+                        certificados.push({ TAG, Nome, Horas, ID, Data });
+
+                        // Adiciona as horas ao total acumulado
+                        totalHoras += parseInt(Horas) || 0;
+                    }
+
+                    // Exibe os certificados
+                    renderCertificados(certificados, totalHoras);
+                })
+                .catch(error => console.error('Erro ao carregar os certificados:', error));
+        }
+
+        // Função para renderizar os certificados na página
+        function renderCertificados(certificados, totalHoras) {
             const certificadosContainer = document.getElementById('certificados');
             certificadosContainer.innerHTML = '';
 
-            let totalHoras = 0;
+            // Organiza os certificados por data (do mais recente para o mais antigo)
+            certificados.sort((a, b) => new Date(b.Data) - new Date(a.Data));
 
             certificados.forEach(certificado => {
-                // Calcula as horas acumuladas, se houver
-                const horas = parseInt(certificado.Horas) || 0;
-                totalHoras += horas;
-
-                // Cria o elemento de certificado
                 const item = document.createElement('div');
                 item.classList.add('certificado');
 
-                // Exibe a TAG, Nome e Horas
+                // Exibe a TAG, Nome, Horas (se houver) e Data
+                const horasDisplay = certificado.Horas ? `${certificado.Horas} h` : '';
                 item.innerHTML = `
                     <p class="tag">${certificado.TAG}</p>
-                    <h3>${certificado.Nome} ${horas > 0 ? `${horas} h` : ''}</h3>
+                    <h3>${certificado.Nome} ${horasDisplay}</h3>
                     <p>Data de Conclusão: ${certificado.Data}</p>
+                    <a href="https://drive.google.com/uc?export=download&id=${certificado.ID}" target="_blank">Baixar Certificado</a>
                 `;
-
-                // Cria o canvas para exibir o PDF
-                const canvas = document.createElement('canvas');
-                item.appendChild(canvas);
-                renderPDF(`https://drive.google.com/uc?export=download&id=${certificado.ID}`, canvas);
 
                 // Adiciona o item à lista de certificados
                 certificadosContainer.appendChild(item);
             });
 
-            // Exibe o total de horas
+            // Exibe o total de horas acumuladas
             const totalHorasElement = document.createElement('div');
-            totalHorasElement.classList.add('certificado');
-            totalHorasElement.innerHTML = `<p><strong>Total de horas acumuladas: ${totalHoras} h</strong></p>`;
+            totalHorasElement.classList.add('total-horas');
+            totalHorasElement.innerHTML = `Total de horas acumuladas: ${totalHoras} h`;
             certificadosContainer.appendChild(totalHorasElement);
         }
 
-        // Função para renderizar o PDF usando PDF.js
-        function renderPDF(pdfUrl, canvas) {
-            pdfjsLib.getDocument(pdfUrl).promise.then(pdfDoc => {
-                pdfDoc.getPage(1).then(page => {
-                    const context = canvas.getContext('2d');
-                    const viewport = page.getViewport({ scale: 1 });
-
-                    canvas.height = viewport.height;
-                    canvas.width = viewport.width;
-
-                    page.render({ canvasContext: context, viewport: viewport });
-                });
-            });
-        }
-
-        // Renderiza os certificados
-        renderCertificados(certificados);
+        // Carrega os certificados assim que a página for carregada
+        window.onload = carregarCertificados;
     </script>
 </body>
 </html>
