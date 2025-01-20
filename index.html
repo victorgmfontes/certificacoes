@@ -3,131 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meus Certificados</title>
+    <title>Portfólio de Certificados</title>
     <style>
-        /* Estilo para a página */
         body {
             font-family: Arial, sans-serif;
+            text-align: center;
             background-color: #f4f4f4;
             margin: 0;
             padding: 0;
         }
 
-        h1 {
-            background-color: #007BFF;
+        header {
+            background-color: #333;
             color: white;
             padding: 20px;
-            text-align: center;
+        }
+
+        .certificados {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 20px;
         }
 
         .certificado {
-            background-color: white;
-            margin: 20px;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            margin: 15px;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 300px;
+        }
+
+        .certificado iframe {
+            width: 100%;
+            max-width: 500px;
+            height: 400px;
+            border: none;
         }
 
         .certificado p {
-            margin: 10px 0;
+            font-size: 14px;
+            color: #555;
         }
 
-        .tag {
+        .certificado .tag {
+            color: #ff6347; /* Cor diferente para a TAG */
             font-weight: bold;
-            color: #007BFF;
+        }
+
+        .certificado a {
+            display: block;
+            margin-top: 10px;
+            color: blue;
+            text-decoration: none;
+            font-weight: bold;
         }
 
         .total-horas {
-            font-size: 1.2em;
             font-weight: bold;
-            text-align: center;
-            margin-top: 30px;
+            font-size: 18px;
+            color: #2c3e50; /* Cor escura (azul escuro) para contraste */
         }
     </style>
 </head>
 <body>
+    <header>
+        <h1>Meus Certificados</h1>
+        <p class="total-horas">Total de horas acumuladas: <span id="totalHoras">0</span> h</p>
+    </header>
 
-    <h1>Meus Certificados</h1>
-
-    <!-- Lista de Certificados -->
-    <div id="certificados"></div>
+    <section id="certificados" class="certificados">
+        <p>Carregando certificados...</p>
+    </section>
 
     <script>
-        // URL pública do CSV da planilha
-        const urlCSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQWF5hRoi8gk3ERKeCSEBfiOtuCf9cTzX6pgQwp2Z_Uo4gYqE_aojJ9kaljHkSNRY8Fbq_4dY-52tn_/pub?output=csv';
+        const planilhaURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWF5hRoi8gk3ERKeCSEBfiOtuCf9cTzX6pgQwp2Z_Uo4gYqE_aojJ9kaljHkSNRY8Fbq_4dY-52tn_/pub?output=csv";
 
-        // Função para processar os dados CSV e renderizar os certificados
-        function carregarCertificados() {
-            fetch(urlCSV)
-                .then(response => response.text())
-                .then(data => {
-                    const linhas = data.split('\n');
-                    const certificados = [];
-                    let totalHoras = 0;
+        async function carregarCertificados() {
+            try {
+                const response = await fetch(planilhaURL);
+                if (!response.ok) throw new Error("Erro ao carregar a planilha");
 
-                    // Processa cada linha do CSV (ignorando a primeira linha que é o cabeçalho)
-                    for (let i = 1; i < linhas.length; i++) {
-                        const colunas = linhas[i].split(',');
-                        if (colunas.length < 5) continue; // Ignora linhas incompletas
+                const data = await response.text();
+                console.log("Dados CSV recebidos:\n", data); // Exibir os dados recebidos
 
-                        const TAG = colunas[0].trim();
-                        const Nome = colunas[1].trim();
-                        const Horas = colunas[2].trim();
-                        const ID = colunas[3].trim();
-                        const Data = colunas[4].trim();
+                const linhas = data.split("\n").slice(1); // Remove o cabeçalho
+                const container = document.getElementById("certificados");
+                container.innerHTML = ""; 
 
-                        if (!Nome || !ID || !Data) continue; // Ignora certificados sem nome, ID ou data
+                let totalHoras = 0;
 
-                        // Adiciona certificado ao array
-                        certificados.push({ TAG, Nome, Horas, ID, Data });
+                // Ordenar as linhas pela data (coluna D, que é a data de conclusão)
+                const certificados = linhas.map(linha => {
+                    const colunas = linha.split(",");
+                    if (colunas.length < 4) return null; // Ignorar linhas inválidas
 
-                        // Adiciona as horas ao total acumulado
-                        totalHoras += parseInt(Horas) || 0;
+                    const tag = colunas[0].trim();
+                    const nome = colunas[1].trim();
+                    const horas = colunas[2].trim(); // Mantemos a variável como string
+                    const id = colunas[3].trim().replace(/"/g, "");
+                    const dataConclusaoStr = colunas[4].trim(); // Data de conclusão (coluna E)
+
+                    // Convertendo a data de conclusão para o formato correto e ajustando para o fuso horário
+                    const dataConclusao = parseDate(dataConclusaoStr);
+
+                    if (nome && id && dataConclusao) {
+                        // Se "Horas" não for um número válido, atribuiremos 0 para não bloquear a exibição
+                        const horasInt = isNaN(parseInt(horas, 10)) ? 0 : parseInt(horas, 10);
+                        totalHoras += horasInt;
+                        return { tag, nome, horas: horasInt, id, dataConclusao };
                     }
 
-                    // Exibe os certificados
-                    renderCertificados(certificados, totalHoras);
-                })
-                .catch(error => console.error('Erro ao carregar os certificados:', error));
+                    return null;
+                }).filter(certificado => certificado !== null);
+
+                // Ordenar os certificados pela data (mais recente primeiro)
+                certificados.sort((a, b) => b.dataConclusao - a.dataConclusao);
+
+                // Atualizar o total de horas no cabeçalho
+                document.getElementById("totalHoras").textContent = totalHoras;
+
+                // Adicionar os certificados ordenados na página
+                certificados.forEach(certificado => {
+                    const div = document.createElement("div");
+                    div.classList.add("certificado");
+
+                    // Verifica se "Horas" tem um valor para mostrar "h" ou não
+                    const horasTexto = certificado.horas > 0 ? `${certificado.horas} h` : "";
+
+                    div.innerHTML = `
+                        <iframe src="https://drive.google.com/file/d/${certificado.id}/preview?usp=sharing"></iframe>
+                        <p><span class="tag">${certificado.tag}</span> ${certificado.nome} ${horasTexto}</p>
+                        <p>Data de Conclusão: ${certificado.dataConclusao.toLocaleDateString("pt-BR")}</p>
+                        <a href="https://drive.google.com/file/d/${certificado.id}/view" target="_blank">Abrir PDF</a>
+                    `;
+
+                    container.appendChild(div);
+                });
+
+            } catch (error) {
+                console.error("Erro ao carregar certificados:", error);
+                document.getElementById("certificados").innerHTML = "<p>Erro ao carregar os certificados.</p>";
+            }
         }
 
-        // Função para renderizar os certificados na página
-        function renderCertificados(certificados, totalHoras) {
-            const certificadosContainer = document.getElementById('certificados');
-            certificadosContainer.innerHTML = '';
-
-            // Organiza os certificados por data (do mais recente para o mais antigo)
-            certificados.sort((a, b) => new Date(b.Data) - new Date(a.Data));
-
-            certificados.forEach(certificado => {
-                const item = document.createElement('div');
-                item.classList.add('certificado');
-
-                // Exibe a TAG, Nome, Horas (se houver) e Data
-                const horasDisplay = certificado.Horas ? `${certificado.Horas} h` : '';
-                item.innerHTML = `
-                    <p class="tag">${certificado.TAG}</p>
-                    <h3>${certificado.Nome} ${horasDisplay}</h3>
-                    <p>Data de Conclusão: ${certificado.Data}</p>
-                    <a href="https://drive.google.com/uc?export=download&id=${certificado.ID}" target="_blank">Baixar Certificado</a>
-                `;
-
-                // Adiciona o item à lista de certificados
-                certificadosContainer.appendChild(item);
-            });
-
-            // Exibe o total de horas acumuladas
-            const totalHorasElement = document.createElement('div');
-            totalHorasElement.classList.add('total-horas');
-            totalHorasElement.innerHTML = `Total de horas acumuladas: ${totalHoras} h`;
-            certificadosContainer.appendChild(totalHorasElement);
+        // Função para converter a data do formato dd/mm/yyyy para Date, ajustando para o fuso horário de Recife (UTC-3)
+        function parseDate(dateStr) {
+            const parts = dateStr.split('/');
+            if (parts.length === 3) {
+                // A data está no formato dd/mm/yyyy, então invertimos para yyyy-mm-dd
+                const date = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T00:00:00-03:00`); // Ajustando para UTC-3
+                return isNaN(date) ? null : date;
+            }
+            return null;
         }
 
-        // Carrega os certificados assim que a página for carregada
-        window.onload = carregarCertificados;
+        carregarCertificados();
     </script>
 </body>
 </html>
