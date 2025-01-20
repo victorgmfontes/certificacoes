@@ -43,6 +43,11 @@
             border: none;
         }
 
+        .certificado p {
+            font-size: 14px;
+            color: #555;
+        }
+
         .certificado a {
             display: block;
             margin-top: 10px;
@@ -104,8 +109,9 @@
                     div.classList.add("certificado");
 
                     div.innerHTML = `
-                        <iframe src="https://drive.google.com/file/d/${certificado.id}/preview"></iframe>
-                        <p>${certificado.nome}</p>
+                        <iframe src="https://drive.google.com/file/d/${certificado.id}/preview?usp=sharing"></iframe>
+                        <p><strong>${certificado.nome}</strong></p>
+                        <p>Data de Conclusão: ${certificado.dataConclusao.toLocaleDateString("pt-BR")}</p>
                         <a href="https://drive.google.com/file/d/${certificado.id}/view" target="_blank">Abrir PDF</a>
                     `;
 
