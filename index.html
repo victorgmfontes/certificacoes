@@ -66,6 +66,12 @@
             font-size: 18px;
             color: #2c3e50; /* Cor escura (azul escuro) para contraste */
         }
+
+        .instituicao {
+            font-size: 14px;
+            color: #777;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -98,13 +104,14 @@
                 // Ordenar as linhas pela data (coluna D, que é a data de conclusão)
                 const certificados = linhas.map(linha => {
                     const colunas = linha.split(",");
-                    if (colunas.length < 4) return null; // Ignorar linhas inválidas
+                    if (colunas.length < 5) return null; // Ignorar linhas inválidas
 
                     const tag = colunas[0].trim();
                     const nome = colunas[1].trim();
                     const horas = colunas[2].trim(); // Mantemos a variável como string
                     const id = colunas[3].trim().replace(/"/g, "");
                     const dataConclusaoStr = colunas[4].trim(); // Data de conclusão (coluna E)
+                    const instituicao = colunas[5] ? colunas[5].trim() : ''; // Nome da instituição (coluna F)
 
                     // Convertendo a data de conclusão para o formato correto e ajustando para o fuso horário
                     const dataConclusao = parseDate(dataConclusaoStr);
@@ -113,7 +120,7 @@
                         // Se "Horas" não for um número válido, atribuiremos 0 para não bloquear a exibição
                         const horasInt = isNaN(parseInt(horas, 10)) ? 0 : parseInt(horas, 10);
                         totalHoras += horasInt;
-                        return { tag, nome, horas: horasInt, id, dataConclusao };
+                        return { tag, nome, horas: horasInt, id, dataConclusao, instituicao };
                     }
 
                     return null;
@@ -137,7 +144,8 @@
                         <iframe src="https://drive.google.com/file/d/${certificado.id}/preview?usp=sharing"></iframe>
                         <p><span class="tag">${certificado.tag}</span> ${certificado.nome} ${horasTexto}</p>
                         <p>Data de Conclusão: ${certificado.dataConclusao.toLocaleDateString("pt-BR")}</p>
-                        <a href="https://drive.google.com/file/d/${certificado.id}/view" target="_blank">Abrir PDF</a>
+                        ${certificado.instituicao ? `<p class="instituicao">Instituição: ${certificado.instituicao}</p>` : ''}
+                        <a href="https://drive.google.com/file/d/${certificado.id}/view" target="_blank">Acessar certificação</a>
                     `;
 
                     container.appendChild(div);
@@ -153,7 +161,7 @@
         function parseDate(dateStr) {
             const parts = dateStr.split('/');
             if (parts.length === 3) {
-                // A data está no formato dd/mm/yyyy, então invertimos para yyyy-mm-dd
+                // A data está no formato dd/mm/yyyy, então invertemos para yyyy-mm-dd
                 const date = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T00:00:00-03:00`); // Ajustando para UTC-3
                 return isNaN(date) ? null : date;
             }
