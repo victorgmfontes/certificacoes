@@ -43,43 +43,12 @@
             border: none;
         }
 
-        .certificado p {
-            font-size: 14px;
-            color: #555;
-        }
-
-        .certificado .tag {
-            color: #ff6347;
-            font-weight: bold;
-        }
-
-        .certificado a {
-            display: block;
-            margin-top: 10px;
-            color: blue;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .total-horas {
-            font-weight: bold;
-            font-size: 18px;
-            color: #2c3e50;
-        }
-
-        .instituicao {
-            font-size: 14px;
-            color: #777;
-            margin-top: 10px;
-        }
-
         .lista-conhecimentos {
             margin: 20px;
             padding: 10px;
             background-color: #eaeaea;
         }
 
-        /* Estilização para a lista de conhecimentos em texto corrido */
         #listaConhecimentos {
             display: block;
             text-align: justify;
@@ -87,10 +56,6 @@
             margin: auto;
             font-size: 16px;
             color: #333;
-        }
-
-        #listaConhecimentos p {
-            display: inline;
         }
 
         @media (max-width: 600px) {
@@ -107,12 +72,9 @@
     </header>
     <p class="total-horas">Profissional Oriundo da Saúde com total de: <span id="totalHoras">0</span>hrs acumuladas</p>
 
-    <!-- Seção para a lista de conhecimentos -->
     <section id="conhecimentos" class="lista-conhecimentos">
         <h2>Habilidades</h2>
-        <div id="listaConhecimentos">
-            <!-- A lista de conhecimentos será preenchida automaticamente aqui -->
-        </div>
+        <div id="listaConhecimentos"></div>
     </section>
     <section id="certificados" class="certificados">
         <p>Carregando certificados...</p>
@@ -127,9 +89,7 @@
             if (!response.ok) throw new Error("Erro ao carregar a planilha");
 
             const data = await response.text();
-            console.log("Dados CSV recebidos:\n", data);
-
-            const linhas = data.split("\n").slice(1); // Remove o cabeçalho
+            const linhas = data.split("\n").slice(1);
             const container = document.getElementById("certificados");
             const listaConhecimentos = document.getElementById("listaConhecimentos");
             container.innerHTML = ""; 
@@ -137,7 +97,6 @@
 
             let totalHoras = 0;
 
-            // Ordenar as linhas pela data (coluna D)
             const certificados = linhas.map(linha => {
                 const colunas = linha.split(",");
                 if (colunas.length < 5) return null;
@@ -148,7 +107,6 @@
                 const id = colunas[3].trim().replace(/"/g, "");
                 const dataConclusaoStr = colunas[4].trim();
                 const instituicao = colunas[5] ? colunas[5].trim() : '';
-
                 const dataConclusao = parseDate(dataConclusaoStr);
 
                 if (nome && id && dataConclusao) {
@@ -156,21 +114,19 @@
                     totalHoras += horasInt;
                     return { tag, nome, horas: horasInt, id, dataConclusao, instituicao };
                 }
-
                 return null;
             }).filter(certificado => certificado !== null);
 
-            // Adicionar os nomes dos certificados na lista de conhecimentos como texto corrido
+            // Agora todos os certificados serão exibidos, sem filtro
+            const certificadosFiltrados = certificados;
+
             const conhecimentosTexto = certificadosFiltrados.map(certificado => certificado.nome).join(", ");
             listaConhecimentos.innerHTML = `<p>${conhecimentosTexto}</p>`;
 
-            // Ordenar os certificados pela data
             certificadosFiltrados.sort((a, b) => b.dataConclusao - a.dataConclusao);
 
-            // Atualizar o total de horas
             document.getElementById("totalHoras").textContent = totalHoras;
 
-            // Adicionar os certificados na página
             certificadosFiltrados.forEach(certificado => {
                 const div = document.createElement("div");
                 div.classList.add("certificado");
