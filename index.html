@@ -49,7 +49,7 @@
         }
 
         .certificado .tag {
-            color: #ff6347; /* Cor diferente para a TAG */
+            color: #ff6347;
             font-weight: bold;
         }
 
@@ -64,7 +64,7 @@
         .total-horas {
             font-weight: bold;
             font-size: 18px;
-            color: #2c3e50; /* Cor escura (azul escuro) para contraste */
+            color: #2c3e50;
         }
 
         .instituicao {
@@ -79,24 +79,26 @@
             background-color: #eaeaea;
         }
 
-#listaConhecimentos {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start; /* Alinha à esquerda para um visual mais compacto */
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-    font-size: 16px;
-    color: #333;
-}
+        /* Estilização para a lista de conhecimentos em texto corrido */
+        #listaConhecimentos {
+            display: block;
+            text-align: justify;
+            max-width: 80%;
+            margin: auto;
+            font-size: 16px;
+            color: #333;
+        }
 
-#listaConhecimentos li {
-    margin-right: 15px; /* Menos espaçamento entre os itens */
-    margin-bottom: 5px;  /* Ajusta o espaçamento entre as linhas */
-    white-space: nowrap; /* Garante que o texto não será quebrado */
-}
+        #listaConhecimentos p {
+            display: inline;
+        }
 
-
+        @media (max-width: 600px) {
+            #listaConhecimentos {
+                text-align: center;
+                max-width: 90%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -107,9 +109,9 @@
     <!-- Seção para a lista de conhecimentos -->
     <section id="conhecimentos" class="lista-conhecimentos">
         <h2>Meus Conhecimentos</h2>
-        <ul id="listaConhecimentos">
+        <div id="listaConhecimentos">
             <!-- A lista de conhecimentos será preenchida automaticamente aqui -->
-        </ul>
+        </div>
         <p><strong>Agora, confira os meus certificados abaixo:</strong></p>
     </section>
 
@@ -128,33 +130,31 @@
             if (!response.ok) throw new Error("Erro ao carregar a planilha");
 
             const data = await response.text();
-            console.log("Dados CSV recebidos:\n", data); // Exibir os dados recebidos
+            console.log("Dados CSV recebidos:\n", data);
 
             const linhas = data.split("\n").slice(1); // Remove o cabeçalho
             const container = document.getElementById("certificados");
             const listaConhecimentos = document.getElementById("listaConhecimentos");
             container.innerHTML = ""; 
-            listaConhecimentos.innerHTML = "";  // Limpar a lista de conhecimentos antes de preencher
+            listaConhecimentos.innerHTML = "";  
 
             let totalHoras = 0;
 
-            // Ordenar as linhas pela data (coluna D, que é a data de conclusão)
+            // Ordenar as linhas pela data (coluna D)
             const certificados = linhas.map(linha => {
                 const colunas = linha.split(",");
-                if (colunas.length < 5) return null; // Ignorar linhas inválidas
+                if (colunas.length < 5) return null;
 
                 const tag = colunas[0].trim();
                 const nome = colunas[1].trim();
-                const horas = colunas[2].trim(); // Mantemos a variável como string
+                const horas = colunas[2].trim();
                 const id = colunas[3].trim().replace(/"/g, "");
-                const dataConclusaoStr = colunas[4].trim(); // Data de conclusão (coluna E)
-                const instituicao = colunas[5] ? colunas[5].trim() : ''; // Nome da instituição (coluna F)
+                const dataConclusaoStr = colunas[4].trim();
+                const instituicao = colunas[5] ? colunas[5].trim() : '';
 
-                // Convertendo a data de conclusão para o formato correto e ajustando para o fuso horário
                 const dataConclusao = parseDate(dataConclusaoStr);
 
                 if (nome && id && dataConclusao) {
-                    // Se "Horas" não for um número válido, atribuiremos 0 para não bloquear a exibição
                     const horasInt = isNaN(parseInt(horas, 10)) ? 0 : parseInt(horas, 10);
                     totalHoras += horasInt;
                     return { tag, nome, horas: horasInt, id, dataConclusao, instituicao };
@@ -166,25 +166,21 @@
             // Filtrar certificados para excluir aqueles com a TAG "Certificação"
             const certificadosFiltrados = certificados.filter(certificado => certificado.tag !== "Certificação");
 
-            // Adicionar os nomes dos certificados na lista de conhecimentos
-            certificadosFiltrados.forEach(certificado => {
-                const li = document.createElement("li");
-                li.textContent = certificado.nome;
-                listaConhecimentos.appendChild(li);
-            });
+            // Adicionar os nomes dos certificados na lista de conhecimentos como texto corrido
+            const conhecimentosTexto = certificadosFiltrados.map(certificado => certificado.nome).join(", ");
+            listaConhecimentos.innerHTML = `<p>${conhecimentosTexto}</p>`;
 
-            // Ordenar os certificados pela data (mais recente primeiro)
+            // Ordenar os certificados pela data
             certificadosFiltrados.sort((a, b) => b.dataConclusao - a.dataConclusao);
 
-            // Atualizar o total de horas no cabeçalho
+            // Atualizar o total de horas
             document.getElementById("totalHoras").textContent = totalHoras;
 
-            // Adicionar os certificados ordenados na página
+            // Adicionar os certificados na página
             certificadosFiltrados.forEach(certificado => {
                 const div = document.createElement("div");
                 div.classList.add("certificado");
 
-                // Verifica se "Horas" tem um valor para mostrar "h" ou não
                 const horasTexto = certificado.horas > 0 ? `${certificado.horas}h` : "";
 
                 div.innerHTML = `
@@ -204,19 +200,16 @@
         }
     }
 
-    // Função para converter a data do formato dd/mm/yyyy para Date, ajustando para o fuso horário de Recife (UTC-3)
     function parseDate(dateStr) {
         const parts = dateStr.split('/');
         if (parts.length === 3) {
-            // A data está no formato dd/mm/yyyy, então invertemos para yyyy-mm-dd
-            const date = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T00:00:00-03:00`); // Ajustando para UTC-3
+            const date = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T00:00:00-03:00`);
             return isNaN(date) ? null : date;
         }
         return null;
     }
 
     carregarCertificados();
-</script>
-
+    </script>
 </body>
 </html>
