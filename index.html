@@ -18,27 +18,29 @@
             color: white;
             padding: 20px;
             display: flex;
-            align-items: center;  /* Alinha o conteúdo verticalmente */
-            justify-content: center;
-    flex-wrap: wrap;
-    align-content: center;
-    flex-direction: row;
-
-
+            align-items: center;
+            justify-content: flex-start;  /* Para alinhar à esquerda */
         }
 
         .logo-container {
             display: flex;
-            gap: 50px;  /* Define o espaço entre as imagens */
+            flex-direction: column;  /* Coloca o nome e o título embaixo da logo */
+            justify-content: center;
+            align-items: flex-start;  /* Alinha os elementos à esquerda */
+            margin-left: 20px;
         }
 
         .logo {
-            height: 140px;  /* Ajuste o tamanho das logomarcas conforme necessário */
+            height: 140px;
             width: auto;
         }
 
         h1 {
-            margin-left: 10px;
+            margin: 0;
+        }
+
+        p {
+            margin-top: 5px;
         }
 
         .certificados {
@@ -97,11 +99,10 @@
 <body>
     <header>
         <div class="logo-container">
-            <img src="https://i.imgur.com/VEkok6b.png" alt="Logomarca 1" class="logo">
+            <img src="https://i.imgur.com/VEkok6b.png" alt="Logomarca" class="logo">
+            <h1>Victor Fontes</h1>
+            <p>Urgência e Emergência</p>
         </div>
-        <h1>Victor Fontes</h1>
-    </br>
-<p>Urgência e Emergência</p>
     </header>
     <p class="total-horas">Profissional Oriundo da Saúde com total de: <span id="totalHoras">0</span>hrs acumuladas</p>
 
