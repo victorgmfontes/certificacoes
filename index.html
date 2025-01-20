@@ -48,6 +48,11 @@
             color: #555;
         }
 
+        .certificado .tag {
+            color: #ff6347; /* Cor diferente para a TAG */
+            font-weight: bold;
+        }
+
         .certificado a {
             display: block;
             margin-top: 10px;
@@ -97,16 +102,18 @@
 
                     const tag = colunas[0].trim();
                     const nome = colunas[1].trim();
-                    const horas = parseInt(colunas[2].trim(), 10);
+                    const horas = colunas[2].trim(); // Mantemos a variável como string
                     const id = colunas[3].trim().replace(/"/g, "");
                     const dataConclusaoStr = colunas[4].trim(); // Data de conclusão (coluna E)
 
                     // Convertendo a data de conclusão para o formato correto e ajustando para o fuso horário
                     const dataConclusao = parseDate(dataConclusaoStr);
 
-                    if (nome && id && dataConclusao && !isNaN(horas)) {
-                        totalHoras += horas;
-                        return { tag, nome, horas, id, dataConclusao };
+                    if (nome && id && dataConclusao) {
+                        // Se "Horas" não for um número válido, atribuiremos 0 para não bloquear a exibição
+                        const horasInt = isNaN(parseInt(horas, 10)) ? 0 : parseInt(horas, 10);
+                        totalHoras += horasInt;
+                        return { tag, nome, horas: horasInt, id, dataConclusao };
                     }
 
                     return null;
@@ -123,9 +130,12 @@
                     const div = document.createElement("div");
                     div.classList.add("certificado");
 
+                    // Verifica se "Horas" tem um valor para mostrar "h" ou não
+                    const horasTexto = certificado.horas > 0 ? `${certificado.horas} h` : "";
+
                     div.innerHTML = `
                         <iframe src="https://drive.google.com/file/d/${certificado.id}/preview?usp=sharing"></iframe>
-                        <p><strong>${certificado.tag} ${certificado.nome} ${certificado.horas} h</strong></p>
+                        <p><span class="tag">${certificado.tag}</span> ${certificado.nome} ${horasTexto}</p>
                         <p>Data de Conclusão: ${certificado.dataConclusao.toLocaleDateString("pt-BR")}</p>
                         <a href="https://drive.google.com/file/d/${certificado.id}/view" target="_blank">Abrir PDF</a>
                     `;
