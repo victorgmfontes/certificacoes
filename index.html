@@ -82,7 +82,7 @@
 #listaConhecimentos {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: flex-start; /* Alinha à esquerda para um visual mais compacto */
     list-style-type: none;
     padding: 0;
     margin: 0;
@@ -91,9 +91,11 @@
 }
 
 #listaConhecimentos li {
-    margin: 10px;
+    margin-right: 15px; /* Menos espaçamento entre os itens */
+    margin-bottom: 5px;  /* Ajusta o espaçamento entre as linhas */
     white-space: nowrap; /* Garante que o texto não será quebrado */
 }
+
 
     </style>
 </head>
@@ -119,104 +121,103 @@
     </section>
 
     <script>
-        const planilhaURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWF5hRoi8gk3ERKeCSEBfiOtuCf9cTzX6pgQwp2Z_Uo4gYqE_aojJ9kaljHkSNRY8Fbq_4dY-52tn_/pub?output=csv";
+    const planilhaURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWF5hRoi8gk3ERKeCSEBfiOtuCf9cTzX6pgQwp2Z_Uo4gYqE_aojJ9kaljHkSNRY8Fbq_4dY-52tn_/pub?output=csv";
 
-        async function carregarCertificados() {
-            try {
-                const response = await fetch(planilhaURL);
-                if (!response.ok) throw new Error("Erro ao carregar a planilha");
+    async function carregarCertificados() {
+        try {
+            const response = await fetch(planilhaURL);
+            if (!response.ok) throw new Error("Erro ao carregar a planilha");
 
-                const data = await response.text();
-                console.log("Dados CSV recebidos:\n", data); // Exibir os dados recebidos
+            const data = await response.text();
+            console.log("Dados CSV recebidos:\n", data); // Exibir os dados recebidos
 
-                const linhas = data.split("\n").slice(1); // Remove o cabeçalho
-                const container = document.getElementById("certificados");
-                container.innerHTML = ""; 
+            const linhas = data.split("\n").slice(1); // Remove o cabeçalho
+            const container = document.getElementById("certificados");
+            const listaConhecimentos = document.getElementById("listaConhecimentos");
+            container.innerHTML = ""; 
+            listaConhecimentos.innerHTML = "";  // Limpar a lista de conhecimentos antes de preencher
 
-                let totalHoras = 0;
-                let conhecimentos = [];
+            let totalHoras = 0;
 
-                // Ordenar as linhas pela data (coluna D, que é a data de conclusão)
-                const certificados = linhas.map(linha => {
-                    const colunas = linha.split(",");
-                    if (colunas.length < 5) return null; // Ignorar linhas inválidas
+            // Ordenar as linhas pela data (coluna D, que é a data de conclusão)
+            const certificados = linhas.map(linha => {
+                const colunas = linha.split(",");
+                if (colunas.length < 5) return null; // Ignorar linhas inválidas
 
-                    const tag = colunas[0].trim();
-                    const nome = colunas[1].trim();
-                    const horas = colunas[2].trim(); // Mantemos a variável como string
-                    const id = colunas[3].trim().replace(/"/g, "");
-                    const dataConclusaoStr = colunas[4].trim(); // Data de conclusão (coluna E)
-                    const instituicao = colunas[5] ? colunas[5].trim() : ''; // Nome da instituição (coluna F)
+                const tag = colunas[0].trim();
+                const nome = colunas[1].trim();
+                const horas = colunas[2].trim(); // Mantemos a variável como string
+                const id = colunas[3].trim().replace(/"/g, "");
+                const dataConclusaoStr = colunas[4].trim(); // Data de conclusão (coluna E)
+                const instituicao = colunas[5] ? colunas[5].trim() : ''; // Nome da instituição (coluna F)
 
-                    // Adicionar os nomes dos certificados à lista de conhecimentos
-                    if (nome) {
-                        conhecimentos.push(nome);
-                    }
+                // Convertendo a data de conclusão para o formato correto e ajustando para o fuso horário
+                const dataConclusao = parseDate(dataConclusaoStr);
 
-                    // Convertendo a data de conclusão para o formato correto e ajustando para o fuso horário
-                    const dataConclusao = parseDate(dataConclusaoStr);
+                if (nome && id && dataConclusao) {
+                    // Se "Horas" não for um número válido, atribuiremos 0 para não bloquear a exibição
+                    const horasInt = isNaN(parseInt(horas, 10)) ? 0 : parseInt(horas, 10);
+                    totalHoras += horasInt;
+                    return { tag, nome, horas: horasInt, id, dataConclusao, instituicao };
+                }
 
-                    if (nome && id && dataConclusao) {
-                        // Se "Horas" não for um número válido, atribuiremos 0 para não bloquear a exibição
-                        const horasInt = isNaN(parseInt(horas, 10)) ? 0 : parseInt(horas, 10);
-                        totalHoras += horasInt;
-                        return { tag, nome, horas: horasInt, id, dataConclusao, instituicao };
-                    }
+                return null;
+            }).filter(certificado => certificado !== null);
 
-                    return null;
-                }).filter(certificado => certificado !== null);
+            // Filtrar certificados para excluir aqueles com a TAG "Certificação"
+            const certificadosFiltrados = certificados.filter(certificado => certificado.tag !== "Certificação");
 
-                // Exibir a lista de conhecimentos na página
-                const listaConhecimentos = document.getElementById("listaConhecimentos");
-                conhecimentos.forEach(nome => {
-                    const li = document.createElement("li");
-                    li.textContent = nome;
-                    listaConhecimentos.appendChild(li);
-                });
+            // Adicionar os nomes dos certificados na lista de conhecimentos
+            certificadosFiltrados.forEach(certificado => {
+                const li = document.createElement("li");
+                li.textContent = certificado.nome;
+                listaConhecimentos.appendChild(li);
+            });
 
-                // Ordenar os certificados pela data (mais recente primeiro)
-                certificados.sort((a, b) => b.dataConclusao - a.dataConclusao);
+            // Ordenar os certificados pela data (mais recente primeiro)
+            certificadosFiltrados.sort((a, b) => b.dataConclusao - a.dataConclusao);
 
-                // Atualizar o total de horas no cabeçalho
-                document.getElementById("totalHoras").textContent = totalHoras;
+            // Atualizar o total de horas no cabeçalho
+            document.getElementById("totalHoras").textContent = totalHoras;
 
-                // Adicionar os certificados ordenados na página
-                certificados.forEach(certificado => {
-                    const div = document.createElement("div");
-                    div.classList.add("certificado");
+            // Adicionar os certificados ordenados na página
+            certificadosFiltrados.forEach(certificado => {
+                const div = document.createElement("div");
+                div.classList.add("certificado");
 
-                    // Verifica se "Horas" tem um valor para mostrar "h" ou não
-                    const horasTexto = certificado.horas > 0 ? `${certificado.horas}h` : "";
+                // Verifica se "Horas" tem um valor para mostrar "h" ou não
+                const horasTexto = certificado.horas > 0 ? `${certificado.horas}h` : "";
 
-                    div.innerHTML = `
-                        <iframe src="https://drive.google.com/file/d/${certificado.id}/preview?usp=sharing"></iframe>
-                        <p><span class="tag">${certificado.tag}</span> ${certificado.nome} ${horasTexto}</p>
-                        <p>Data de Conclusão: ${certificado.dataConclusao.toLocaleDateString("pt-BR")}</p>
-                        ${certificado.instituicao ? `<p class="instituicao">Instituição: ${certificado.instituicao}</p>` : ''}
-                        <a href="https://drive.google.com/file/d/${certificado.id}/view" target="_blank">Acessar certificação</a>
-                    `;
+                div.innerHTML = `
+                    <iframe src="https://drive.google.com/file/d/${certificado.id}/preview?usp=sharing"></iframe>
+                    <p><span class="tag">${certificado.tag}</span> ${certificado.nome} ${horasTexto}</p>
+                    <p>Data de Conclusão: ${certificado.dataConclusao.toLocaleDateString("pt-BR")}</p>
+                    ${certificado.instituicao ? `<p class="instituicao">Instituição: ${certificado.instituicao}</p>` : ''}
+                    <a href="https://drive.google.com/file/d/${certificado.id}/view" target="_blank">Acessar certificação</a>
+                `;
 
-                    container.appendChild(div);
-                });
+                container.appendChild(div);
+            });
 
-            } catch (error) {
-                console.error("Erro ao carregar certificados:", error);
-                document.getElementById("certificados").innerHTML = "<p>Erro ao carregar os certificados.</p>";
-            }
+        } catch (error) {
+            console.error("Erro ao carregar certificados:", error);
+            document.getElementById("certificados").innerHTML = "<p>Erro ao carregar os certificados.</p>";
         }
+    }
 
-        // Função para converter a data do formato dd/mm/yyyy para Date, ajustando para o fuso horário de Recife (UTC-3)
-        function parseDate(dateStr) {
-            const parts = dateStr.split('/');
-            if (parts.length === 3) {
-                // A data está no formato dd/mm/yyyy, então invertemos para yyyy-mm-dd
-                const date = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T00:00:00-03:00`); // Ajustando para UTC-3
-                return isNaN(date) ? null : date;
-            }
-            return null;
+    // Função para converter a data do formato dd/mm/yyyy para Date, ajustando para o fuso horário de Recife (UTC-3)
+    function parseDate(dateStr) {
+        const parts = dateStr.split('/');
+        if (parts.length === 3) {
+            // A data está no formato dd/mm/yyyy, então invertemos para yyyy-mm-dd
+            const date = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T00:00:00-03:00`); // Ajustando para UTC-3
+            return isNaN(date) ? null : date;
         }
+        return null;
+    }
 
-        carregarCertificados();
-    </script>
+    carregarCertificados();
+</script>
+
 </body>
 </html>
