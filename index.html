@@ -90,7 +90,7 @@
                     const id = colunas[1].trim().replace(/"/g, "");
                     const dataConclusaoStr = colunas[2].trim(); // Data de conclusão (coluna C)
 
-                    // Convertendo a data de conclusão para o formato correto
+                    // Convertendo a data de conclusão para o formato correto e ajustando o fuso horário
                     const dataConclusao = parseDate(dataConclusaoStr);
 
                     if (nome && id && dataConclusao) {
@@ -112,7 +112,7 @@
                         <iframe src="https://drive.google.com/file/d/${certificado.id}/preview?usp=sharing"></iframe>
                         <p><strong>${certificado.nome}</strong></p>
                         <p>Data de Conclusão: ${certificado.dataConclusao.toLocaleDateString("pt-BR")}</p>
-                        <a href="https://drive.google.com/file/d/${certificado.id}/view" target="_blank">Abrir Certificação</a>
+                        <a href="https://drive.google.com/file/d/${certificado.id}/view" target="_blank">Abrir PDF</a>
                     `;
 
                     container.appendChild(div);
@@ -124,12 +124,12 @@
             }
         }
 
-        // Função para converter a data do formato dd/mm/yyyy para Date
+        // Função para converter a data do formato dd/mm/yyyy para Date, ajustando para o fuso horário de Recife (UTC-3)
         function parseDate(dateStr) {
             const parts = dateStr.split('/');
             if (parts.length === 3) {
                 // A data está no formato dd/mm/yyyy, então invertimos para yyyy-mm-dd
-                const date = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+                const date = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T00:00:00-03:00`); // Ajustando para UTC-3
                 return isNaN(date) ? null : date;
             }
             return null;
