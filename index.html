@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfólio de Certificados</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #333;
+            color: white;
+            padding: 20px;
+        }
+
+        .certificados {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 20px;
+        }
+
+        .certificado {
+            margin: 15px;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .certificado iframe {
+            width: 100%;
+            max-width: 500px;
+            height: 400px;
+            border: none;
+        }
+
+        .certificado a {
+            display: block;
+            margin-top: 10px;
+            color: blue;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Meus Certificados</h1>
+    </header>
+
+    <section id="certificados" class="certificados">
+        <p>Carregando certificados...</p>
+    </section>
+
+    <script>
+        const planilhaURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWF5hRoi8gk3ERKeCSEBfiOtuCf9cTzX6pgQwp2Z_Uo4gYqE_aojJ9kaljHkSNRY8Fbq_4dY-52tn_/pub?output=csv";
+
+        async function carregarCertificados() {
+            try {
+                const response = await fetch(planilhaURL);
+                if (!response.ok) throw new Error("Erro ao carregar a planilha");
+
+                const data = await response.text();
+                console.log("Dados CSV recebidos:\n", data); // Exibir os dados recebidos
+
+                const linhas = data.split("\n").slice(1); // Remove o cabeçalho
+                const container = document.getElementById("certificados");
+                container.innerHTML = ""; 
+
+                linhas.forEach((linha, index) => {
+                    const colunas = linha.split(",");
+                    if (colunas.length < 2) {
+                        console.warn(`Linha ${index + 2} ignorada (formato inválido):`, linha);
+                        return;
+                    }
+
+                    const nome = colunas[0].trim();
+                    const id = colunas[1].trim().replace(/"/g, ""); // Remover aspas extras
+
+                    console.log(`Adicionando: ${nome} - ${id}`);
+
+                    if (nome && id) {
+                        const div = document.createElement("div");
+                        div.classList.add("certificado");
+
+                        div.innerHTML = `
+                            <iframe src="https://drive.google.com/file/d/${id}/preview"></iframe>
+                            <p>${nome}</p>
+                            <a href="https://drive.google.com/file/d/${id}/view" target="_blank">Abrir PDF</a>
+                        `;
+
+                        container.appendChild(div);
+                    }
+                });
+
+            } catch (error) {
+                console.error("Erro ao carregar certificados:", error);
+                document.getElementById("certificados").innerHTML = "<p>Erro ao carregar os certificados.</p>";
+            }
+        }
+
+        carregarCertificados();
+    </script>
+</body>
+</html>
