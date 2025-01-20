@@ -72,12 +72,41 @@
             color: #777;
             margin-top: 10px;
         }
+
+        .lista-conhecimentos {
+            margin: 20px;
+            padding: 10px;
+            background-color: #eaeaea;
+        }
+
+        #listaConhecimentos {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            font-size: 16px;
+            color: #333;
+        }
+
+        #listaConhecimentos li {
+            margin: 10px 0;
+        }
     </style>
 </head>
 <body>
     <header>
         <h1>Meus Certificados</h1>
     </header>
+
+    <!-- Seção para a lista de conhecimentos -->
+    <section id="conhecimentos" class="lista-conhecimentos">
+        <h2>Meus Conhecimentos</h2>
+        <p>Antes de visualizar meus certificados, veja abaixo uma lista dos conhecimentos adquiridos:</p>
+        <ul id="listaConhecimentos">
+            <!-- A lista de conhecimentos será preenchida automaticamente aqui -->
+        </ul>
+        <p><strong>Agora, confira os meus certificados abaixo:</strong></p>
+    </section>
+
     <p class="total-horas">Profissional Oriundo da Saúde com total de: <span id="totalHoras">0</span>hrs acumuladas</p>
 
     <section id="certificados" class="certificados">
@@ -100,6 +129,7 @@
                 container.innerHTML = ""; 
 
                 let totalHoras = 0;
+                let conhecimentos = [];
 
                 // Ordenar as linhas pela data (coluna D, que é a data de conclusão)
                 const certificados = linhas.map(linha => {
@@ -113,6 +143,11 @@
                     const dataConclusaoStr = colunas[4].trim(); // Data de conclusão (coluna E)
                     const instituicao = colunas[5] ? colunas[5].trim() : ''; // Nome da instituição (coluna F)
 
+                    // Adicionar os nomes dos certificados à lista de conhecimentos
+                    if (nome) {
+                        conhecimentos.push(nome);
+                    }
+
                     // Convertendo a data de conclusão para o formato correto e ajustando para o fuso horário
                     const dataConclusao = parseDate(dataConclusaoStr);
 
@@ -125,6 +160,14 @@
 
                     return null;
                 }).filter(certificado => certificado !== null);
+
+                // Exibir a lista de conhecimentos na página
+                const listaConhecimentos = document.getElementById("listaConhecimentos");
+                conhecimentos.forEach(nome => {
+                    const li = document.createElement("li");
+                    li.textContent = nome;
+                    listaConhecimentos.appendChild(li);
+                });
 
                 // Ordenar os certificados pela data (mais recente primeiro)
                 certificados.sort((a, b) => b.dataConclusao - a.dataConclusao);
