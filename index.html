@@ -160,9 +160,6 @@
                 return null;
             }).filter(certificado => certificado !== null);
 
-            // Filtrar certificados para excluir aqueles com a TAG "Certificação"
-            const certificadosFiltrados = certificados.filter(certificado => certificado.tag !== "Certificação");
-
             // Adicionar os nomes dos certificados na lista de conhecimentos como texto corrido
             const conhecimentosTexto = certificadosFiltrados.map(certificado => certificado.nome).join(", ");
             listaConhecimentos.innerHTML = `<p>${conhecimentosTexto}</p>`;
