@@ -3,164 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portfólio de Certificados</title>
+    <title>Meus Certificados</title>
     <style>
+        /* Estilo para a página */
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
             background-color: #f4f4f4;
             margin: 0;
             padding: 0;
         }
 
-        header {
-            background-color: #333;
+        h1 {
+            background-color: #007BFF;
             color: white;
             padding: 20px;
-        }
-
-        .certificados {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin: 20px;
+            text-align: center;
         }
 
         .certificado {
-            margin: 15px;
-            background: white;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            width: 300px;
-        }
-
-        .certificado iframe {
-            width: 100%;
-            max-width: 500px;
-            height: 400px;
-            border: none;
+            background-color: white;
+            margin: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .certificado p {
-            font-size: 14px;
-            color: #555;
+            margin: 10px 0;
         }
 
-        .certificado .tag {
-            color: #ff6347; /* Cor diferente para a TAG */
-            font-weight: bold;
+        .certificado canvas {
+            border: 1px solid #ccc;
+            margin-top: 20px;
+            max-width: 100%;
+            box-sizing: border-box;
         }
-
-        .certificado a {
-            display: block;
-            margin-top: 10px;
-            color: blue;
-            text-decoration: none;
+        
+        .tag {
             font-weight: bold;
-        }
-
-        .total-horas {
-            font-weight: bold;
-            font-size: 18px;
-            color: #2c3e50;
+            color: #007BFF;
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Meus Certificados</h1>
-    </header>
-        <p class="total-horas">Total de horas acumuladas: <span id="totalHoras">0</span> h</p>
 
-    <section id="certificados" class="certificados">
-        <p>Carregando certificados...</p>
-    </section>
+    <h1>Meus Certificados</h1>
+
+    <!-- Lista de Certificados -->
+    <div id="certificados"></div>
+
+    <!-- Inclua o PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
 
     <script>
-        const planilhaURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWF5hRoi8gk3ERKeCSEBfiOtuCf9cTzX6pgQwp2Z_Uo4gYqE_aojJ9kaljHkSNRY8Fbq_4dY-52tn_/pub?output=csv";
+        // Dados CSV simulados
+        const certificados = [
+            { TAG: 'Diploma', Nome: 'Técnico de Enfermagem', Horas: '1600', ID: '1bFUZpcSkLM5pb0MYLp1mcsIM1QOnPjlh', Data: '30/05/2024' },
+            { TAG: 'Palestra', Nome: 'Bases legais para abertura de consultórios e clínicas de Enfermagem', Horas: '01', ID: '1iE6bWWBJkxqRjCqUUVxjxG9SKp9ZAIcE', Data: '13/06/2024' },
+            { TAG: 'Registro', Nome: 'COREN-PE 2094325-TE', Horas: '', ID: '1ka2pfbw5INDevaa3mxQnSu7oqG9vLU49', Data: '17/06/2024' },
+            { TAG: 'Curso', Nome: 'Parada Cardiorrespiratória e Indução de Consciência por RCP', Horas: '10', ID: '1sQV8rZwnBSbvXUi26fJbrX44jS_f9rFX', Data: '26/06/2024' },
+            { TAG: 'Curso', Nome: 'Trauma na Pediatria', Horas: '10', ID: '1gW-a_SiBS-mAF4yqvJojztQ2df8_IfGP', Data: '13/06/2024' }
+        ];
 
-        async function carregarCertificados() {
-            try {
-                const response = await fetch(planilhaURL);
-                if (!response.ok) throw new Error("Erro ao carregar a planilha");
+        // Função para renderizar cada certificado
+        function renderCertificados(certificados) {
+            const certificadosContainer = document.getElementById('certificados');
+            certificadosContainer.innerHTML = '';
 
-                const data = await response.text();
-                console.log("Dados CSV recebidos:\n", data); // Exibir os dados recebidos
+            let totalHoras = 0;
 
-                const linhas = data.split("\n").slice(1); // Remove o cabeçalho
-                const container = document.getElementById("certificados");
-                container.innerHTML = ""; 
+            certificados.forEach(certificado => {
+                // Calcula as horas acumuladas, se houver
+                const horas = parseInt(certificado.Horas) || 0;
+                totalHoras += horas;
 
-                let totalHoras = 0;
+                // Cria o elemento de certificado
+                const item = document.createElement('div');
+                item.classList.add('certificado');
 
-                // Ordenar as linhas pela data (coluna D, que é a data de conclusão)
-                const certificados = linhas.map(linha => {
-                    const colunas = linha.split(",");
-                    if (colunas.length < 4) return null; // Ignorar linhas inválidas
+                // Exibe a TAG, Nome e Horas
+                item.innerHTML = `
+                    <p class="tag">${certificado.TAG}</p>
+                    <h3>${certificado.Nome} ${horas > 0 ? `${horas} h` : ''}</h3>
+                    <p>Data de Conclusão: ${certificado.Data}</p>
+                `;
 
-                    const tag = colunas[0].trim();
-                    const nome = colunas[1].trim();
-                    const horas = colunas[2].trim(); // Mantemos a variável como string
-                    const id = colunas[3].trim().replace(/"/g, "");
-                    const dataConclusaoStr = colunas[4].trim(); // Data de conclusão (coluna E)
+                // Cria o canvas para exibir o PDF
+                const canvas = document.createElement('canvas');
+                item.appendChild(canvas);
+                renderPDF(`https://drive.google.com/uc?export=download&id=${certificado.ID}`, canvas);
 
-                    // Convertendo a data de conclusão para o formato correto e ajustando para o fuso horário
-                    const dataConclusao = parseDate(dataConclusaoStr);
+                // Adiciona o item à lista de certificados
+                certificadosContainer.appendChild(item);
+            });
 
-                    if (nome && id && dataConclusao) {
-                        // Se "Horas" não for um número válido, atribuiremos 0 para não bloquear a exibição
-                        const horasInt = isNaN(parseInt(horas, 10)) ? 0 : parseInt(horas, 10);
-                        totalHoras += horasInt;
-                        return { tag, nome, horas: horasInt, id, dataConclusao };
-                    }
+            // Exibe o total de horas
+            const totalHorasElement = document.createElement('div');
+            totalHorasElement.classList.add('certificado');
+            totalHorasElement.innerHTML = `<p><strong>Total de horas acumuladas: ${totalHoras} h</strong></p>`;
+            certificadosContainer.appendChild(totalHorasElement);
+        }
 
-                    return null;
-                }).filter(certificado => certificado !== null);
+        // Função para renderizar o PDF usando PDF.js
+        function renderPDF(pdfUrl, canvas) {
+            pdfjsLib.getDocument(pdfUrl).promise.then(pdfDoc => {
+                pdfDoc.getPage(1).then(page => {
+                    const context = canvas.getContext('2d');
+                    const viewport = page.getViewport({ scale: 1 });
 
-                // Ordenar os certificados pela data (mais recente primeiro)
-                certificados.sort((a, b) => b.dataConclusao - a.dataConclusao);
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
 
-                // Atualizar o total de horas no cabeçalho
-                document.getElementById("totalHoras").textContent = totalHoras;
-
-                // Adicionar os certificados ordenados na página
-                certificados.forEach(certificado => {
-                    const div = document.createElement("div");
-                    div.classList.add("certificado");
-
-                    // Verifica se "Horas" tem um valor para mostrar "h" ou não
-                    const horasTexto = certificado.horas > 0 ? `${certificado.horas} h` : "";
-
-                    div.innerHTML = `
-                        <iframe src="https://drive.google.com/file/d/${certificado.id}/preview?usp=sharing"></iframe>
-                        <p><span class="tag">${certificado.tag}</span> ${certificado.nome} ${horasTexto}</p>
-                        <p>Data de Conclusão: ${certificado.dataConclusao.toLocaleDateString("pt-BR")}</p>
-                        <a href="https://drive.google.com/file/d/${certificado.id}/view" target="_blank">Abrir PDF</a>
-                    `;
-
-                    container.appendChild(div);
+                    page.render({ canvasContext: context, viewport: viewport });
                 });
-
-            } catch (error) {
-                console.error("Erro ao carregar certificados:", error);
-                document.getElementById("certificados").innerHTML = "<p>Erro ao carregar os certificados.</p>";
-            }
+            });
         }
 
-        // Função para converter a data do formato dd/mm/yyyy para Date, ajustando para o fuso horário de Recife (UTC-3)
-        function parseDate(dateStr) {
-            const parts = dateStr.split('/');
-            if (parts.length === 3) {
-                // A data está no formato dd/mm/yyyy, então invertimos para yyyy-mm-dd
-                const date = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T00:00:00-03:00`); // Ajustando para UTC-3
-                return isNaN(date) ? null : date;
-            }
-            return null;
-        }
-
-        carregarCertificados();
+        // Renderiza os certificados
+        renderCertificados(certificados);
     </script>
 </body>
 </html>
