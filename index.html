@@ -120,50 +120,54 @@
     <script>
     const planilhaURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWF5hRoi8gk3ERKeCSEBfiOtuCf9cTzX6pgQwp2Z_Uo4gYqE_aojJ9kaljHkSNRY8Fbq_4dY-52tn_/pub?output=csv";
 
-    async function carregarCertificados() {
-        try {
-            const response = await fetch(planilhaURL);
-            if (!response.ok) throw new Error("Erro ao carregar a planilha");
+async function carregarCertificados() {
+    try {
+        const response = await fetch(planilhaURL);
+        if (!response.ok) throw new Error("Erro ao carregar a planilha");
 
-            const data = await response.text();
-            const linhas = data.split("\n").slice(1);
-            const container = document.getElementById("certificados");
-            const listaConhecimentos = document.getElementById("listaConhecimentos");
-            container.innerHTML = "";
-            listaConhecimentos.innerHTML = "";
+        const data = await response.text();
+        const linhas = data.split("\n").slice(1);
+        const container = document.getElementById("certificados");
+        const listaConhecimentos = document.getElementById("listaConhecimentos");
+        container.innerHTML = "";
+        listaConhecimentos.innerHTML = "";
 
-            let totalHoras = 0;
-            const certificados = linhas.map(linha => {
-                const colunas = linha.split(",");
-                if (colunas.length < 5) return null;
-                const nome = colunas[1].trim();
-                const horas = parseInt(colunas[2].trim(), 10) || 0;
-                const id = colunas[3].trim().replace(/"/g, "");
-                const dataConclusao = colunas[4].trim();
-                totalHoras += horas;
-                return { nome, horas, id, dataConclusao };
-            }).filter(certificado => certificado !== null);
+        let totalHoras = 0;
+        const certificados = linhas.map(linha => {
+            const colunas = linha.split(",");
+            if (colunas.length < 5) return null;
+            const nome = colunas[1].trim();
+            const horas = parseInt(colunas[2].trim(), 10) || 0;
+            const id = colunas[3].trim().replace(/"/g, "");
+            const dataConclusao = colunas[4].trim();
+            totalHoras += horas;
+            return { nome, horas, id, dataConclusao };
+        }).filter(certificado => certificado !== null);
 
-            document.getElementById("totalHoras").textContent = totalHoras;
+        // Ordena os certificados pela data de conclusão (do mais recente para o mais antigo)
+        certificados.sort((a, b) => new Date(b.dataConclusao) - new Date(a.dataConclusao));
 
-            const conhecimentosTexto = certificados.map(cert => cert.nome).join(", ");
-            listaConhecimentos.innerHTML = `<p>${conhecimentosTexto}</p>`;
+        document.getElementById("totalHoras").textContent = totalHoras;
 
-            certificados.forEach(cert => {
-                const div = document.createElement("div");
-                div.classList.add("certificado");
-                div.innerHTML = `
-                    <iframe src="https://drive.google.com/file/d/${cert.id}/preview?usp=sharing"></iframe>
-                    <p><strong>${cert.nome}</strong> - ${cert.horas}h</p>
-                    <p>Concluído em: ${cert.dataConclusao}</p>
-                    <a href="https://drive.google.com/file/d/${cert.id}/view" target="_blank">Visualizar Certificado</a>
-                `;
-                container.appendChild(div);
-            });
-        } catch (error) {
-            document.getElementById("certificados").innerHTML = "<p>Erro ao carregar os certificados.</p>";
-        }
+        const conhecimentosTexto = certificados.map(cert => cert.nome).join(", ");
+        listaConhecimentos.innerHTML = `<p>${conhecimentosTexto}</p>`;
+
+        certificados.forEach(cert => {
+            const div = document.createElement("div");
+            div.classList.add("certificado");
+            div.innerHTML = `
+                <iframe src="https://drive.google.com/file/d/${cert.id}/preview?usp=sharing"></iframe>
+                <p><strong>${cert.nome}</strong> - ${cert.horas}h</p>
+                <p>Concluído em: ${cert.dataConclusao}</p>
+                <a href="https://drive.google.com/file/d/${cert.id}/view" target="_blank">Visualizar Certificado</a>
+            `;
+            container.appendChild(div);
+        });
+    } catch (error) {
+        document.getElementById("certificados").innerHTML = "<p>Erro ao carregar os certificados.</p>";
     }
+}
+
 
     carregarCertificados();
     </script>
