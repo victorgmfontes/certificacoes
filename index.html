@@ -33,6 +33,7 @@
             border-radius: 5px;
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
             text-align: center;
+            width: 300px;
         }
 
         .certificado iframe {
@@ -75,30 +76,37 @@
                 const container = document.getElementById("certificados");
                 container.innerHTML = ""; 
 
-                linhas.forEach((linha, index) => {
+                // Ordenar as linhas pela data (coluna C, que é a data de conclusão)
+                const certificados = linhas.map(linha => {
                     const colunas = linha.split(",");
-                    if (colunas.length < 2) {
-                        console.warn(`Linha ${index + 2} ignorada (formato inválido):`, linha);
-                        return;
-                    }
+                    if (colunas.length < 3) return null; // Ignorar linhas inválidas
 
                     const nome = colunas[0].trim();
-                    const id = colunas[1].trim().replace(/"/g, ""); // Remover aspas extras
+                    const id = colunas[1].trim().replace(/"/g, "");
+                    const dataConclusao = new Date(colunas[2].trim()); // Data de conclusão (coluna C)
 
-                    console.log(`Adicionando: ${nome} - ${id}`);
-
-                    if (nome && id) {
-                        const div = document.createElement("div");
-                        div.classList.add("certificado");
-
-                        div.innerHTML = `
-                            <iframe src="https://drive.google.com/file/d/${id}/preview"></iframe>
-                            <p>${nome}</p>
-                            <a href="https://drive.google.com/file/d/${id}/view" target="_blank">Abrir PDF</a>
-                        `;
-
-                        container.appendChild(div);
+                    if (nome && id && !isNaN(dataConclusao)) {
+                        return { nome, id, dataConclusao };
                     }
+
+                    return null;
+                }).filter(certificado => certificado !== null);
+
+                // Ordenar os certificados pela data (mais recente primeiro)
+                certificados.sort((a, b) => b.dataConclusao - a.dataConclusao);
+
+                // Adicionar os certificados ordenados na página
+                certificados.forEach(certificado => {
+                    const div = document.createElement("div");
+                    div.classList.add("certificado");
+
+                    div.innerHTML = `
+                        <iframe src="https://drive.google.com/file/d/${certificado.id}/preview"></iframe>
+                        <p>${certificado.nome}</p>
+                        <a href="https://drive.google.com/file/d/${certificado.id}/view" target="_blank">Abrir PDF</a>
+                    `;
+
+                    container.appendChild(div);
                 });
 
             } catch (error) {
