@@ -19,12 +19,17 @@
             padding: 20px;
             display: flex;
             align-items: center;  /* Alinha o conteúdo verticalmente */
-            justify-content: space-between;  /* Espaça o conteúdo da esquerda para a direita */
+            justify-content: center;
+    flex-wrap: wrap;
+    align-content: center;
+    flex-direction: row;
+
+
         }
 
         .logo-container {
             display: flex;
-            gap: 10px;  /* Define o espaço entre as imagens */
+            gap: 50px;  /* Define o espaço entre as imagens */
         }
 
         .logo {
@@ -93,8 +98,6 @@
     <header>
         <div class="logo-container">
             <img src="https://i.imgur.com/VEkok6b.png" alt="Logomarca 1" class="logo">
-            <img src="https://i.imgur.com/QGHe3Dh.png" alt="Logomarca 2" class="logo">
-            <img src="https://i.imgur.com/1kjeTf9.png" alt="Logomarca 3" class="logo">
         </div>
         <h1>Victor Fontes</h1>
     </header>
