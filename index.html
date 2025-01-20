@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portfólio Profissional - Urgência e Emergência</title>
+    <title>Portfólio de Certificados</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: Arial, sans-serif;
+            text-align: center;
             background-color: #f4f4f4;
-            color: #333;
             margin: 0;
             padding: 0;
         }
@@ -16,55 +16,26 @@
         header {
             background-color: #8B0000;
             color: white;
-            text-align: center;
-            padding: 20px 10px;
-        }
-
-        .container {
-            max-width: 1100px;
-            margin: auto;
             padding: 20px;
-            text-align: center;
-        }
-
-        .total-horas {
+            font-size: 24px;
             font-weight: bold;
-            font-size: 20px;
-            color: #8B0000;
-        }
-
-        .lista-conhecimentos {
-            background-color: #eaeaea;
-            padding: 15px;
-            margin: 20px auto;
-            border-radius: 5px;
-            text-align: center;
-        }
-
-        #listaConhecimentos {
-            display: block;
-            text-align: justify;
-            max-width: 80%;
-            margin: auto;
-            font-size: 16px;
-            color: #333;
         }
 
         .certificados {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 15px;
-            margin-top: 20px;
+            margin: 20px;
         }
 
         .certificado {
+            margin: 15px;
             background: white;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            width: 300px;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
             text-align: center;
+            width: 300px;
         }
 
         .certificado iframe {
@@ -78,44 +49,41 @@
             color: #555;
         }
 
-        footer {
-            background-color: #8B0000;
-            color: white;
-            text-align: center;
-            padding: 10px;
-            margin-top: 20px;
+        .certificado .tag {
+            color: red;
+            font-weight: bold;
+            font-size: 12px;
+            display: block;
         }
 
-        @media (max-width: 600px) {
-            #listaConhecimentos {
-                text-align: center;
-                max-width: 90%;
-            }
+        .certificado a {
+            display: block;
+            margin-top: 10px;
+            color: blue;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .total-horas {
+            font-weight: bold;
+            font-size: 18px;
+            color: #2c3e50;
+        }
+
+        .instituicao {
+            font-size: 14px;
+            color: #777;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Victor Fontes</h1>
-        <p>Profissional em Urgência e Emergência</p>
-    </header>
+    <header>Portfólio de Urgência e Emergência</header>
+    <p class="total-horas">Profissional com <span id="totalHoras">0</span> horas acumuladas</p>
 
-    <div class="container">
-        <p class="total-horas">Total de Horas Acumuladas: <span id="totalHoras">0</span>h</p>
-
-        <section class="lista-conhecimentos">
-            <h2>Habilidades</h2>
-            <div id="listaConhecimentos"></div>
-        </section>
-
-        <section class="certificados" id="certificados">
-            <p>Carregando certificados...</p>
-        </section>
-    </div>
-
-    <footer>
-        <p>© 2025 Victor Fontes - Profissional de Saúde</p>
-    </footer>
+    <section id="certificados" class="certificados">
+        <p>Carregando certificados...</p>
+    </section>
 
     <script>
     const planilhaURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWF5hRoi8gk3ERKeCSEBfiOtuCf9cTzX6pgQwp2Z_Uo4gYqE_aojJ9kaljHkSNRY8Fbq_4dY-52tn_/pub?output=csv";
@@ -128,41 +96,58 @@
             const data = await response.text();
             const linhas = data.split("\n").slice(1);
             const container = document.getElementById("certificados");
-            const listaConhecimentos = document.getElementById("listaConhecimentos");
             container.innerHTML = "";
-            listaConhecimentos.innerHTML = "";
 
             let totalHoras = 0;
+
             const certificados = linhas.map(linha => {
                 const colunas = linha.split(",");
                 if (colunas.length < 5) return null;
+
+                const tag = colunas[0].trim();
                 const nome = colunas[1].trim();
-                const horas = parseInt(colunas[2].trim(), 10) || 0;
+                const horas = colunas[2].trim();
                 const id = colunas[3].trim().replace(/"/g, "");
-                const dataConclusao = colunas[4].trim();
-                totalHoras += horas;
-                return { nome, horas, id, dataConclusao };
-            }).filter(certificado => certificado !== null);
+                const dataConclusaoStr = colunas[4].trim();
+                const dataConclusao = parseDate(dataConclusaoStr);
 
+                if (nome && id && dataConclusao) {
+                    const horasInt = isNaN(parseInt(horas, 10)) ? 0 : parseInt(horas, 10);
+                    totalHoras += horasInt;
+                    return { tag, nome, horas: horasInt, id, dataConclusao };
+                }
+                return null;
+            }).filter(cert => cert !== null);
+
+            certificados.sort((a, b) => b.dataConclusao - a.dataConclusao);
             document.getElementById("totalHoras").textContent = totalHoras;
-
-            const conhecimentosTexto = certificados.map(cert => cert.nome).join(", ");
-            listaConhecimentos.innerHTML = `<p>${conhecimentosTexto}</p>`;
 
             certificados.forEach(cert => {
                 const div = document.createElement("div");
                 div.classList.add("certificado");
+                const horasTexto = cert.horas > 0 ? `${cert.horas}h` : "";
+                
                 div.innerHTML = `
                     <iframe src="https://drive.google.com/file/d/${cert.id}/preview?usp=sharing"></iframe>
-                    <p><strong>${cert.nome}</strong> - ${cert.horas}h</p>
-                    <p>Concluído em: ${cert.dataConclusao}</p>
-                    <a href="https://drive.google.com/file/d/${cert.id}/view" target="_blank">Visualizar Certificado</a>
+                    <p><span class="tag">${cert.tag}</span> ${cert.nome} ${horasTexto}</p>
+                    <p>Data de Conclusão: ${cert.dataConclusao.toLocaleDateString("pt-BR")}</p>
+                    <a href="https://drive.google.com/file/d/${cert.id}/view" target="_blank">Acessar certificação</a>
                 `;
                 container.appendChild(div);
             });
         } catch (error) {
+            console.error("Erro ao carregar certificados:", error);
             document.getElementById("certificados").innerHTML = "<p>Erro ao carregar os certificados.</p>";
         }
+    }
+
+    function parseDate(dateStr) {
+        const parts = dateStr.split('/');
+        if (parts.length === 3) {
+            const date = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T00:00:00-03:00`);
+            return isNaN(date) ? null : date;
+        }
+        return null;
     }
 
     carregarCertificados();
