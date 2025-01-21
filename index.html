@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Star_of_life.svg/1200px-Star_of_life.svg.png" type="image/x-icon">
+ <!-- Open Graph Tags -->
+    <meta property="og:title" content="Victor Fontes - Qualificações técnicas">
+    <meta property="og:description" content="Confira meus certificados e habilidades na área de Urgência e Emergência!">
+    <meta property="og:image" content="https://i.imgur.com/FPJsk1Q.png"> <!-- Imagem personalizada -->
+    <meta property="og:url" content="https://victorgmfontes.github.io/certificacoes/"> <!-- URL do seu site -->
+
+    <!-- Twitter Card Tags (opcional) -->
+    <meta name="twitter:title" content="Portfólio de Certificados - Victor Fontes">
+    <meta name="twitter:description" content="Confira meus certificados e habilidades na área de Urgência e Emergência!">
+    <meta name="twitter:image" content="https://i.imgur.com/FPJsk1Q.png"> <!-- Imagem personalizada -->
+    <meta name="twitter:card" content="summary_large_image"> 
 
     <title>Victor Fontes</title>
     <style>
@@ -175,7 +186,7 @@
             const certificadosFiltrados = certificados;
 
             const conhecimentosTexto = certificadosFiltrados.map(certificado => certificado.nome).join(", ");
-            listaConhecimentos.innerHTML = `<p>${conhecimentosTexto}</p>`;
+            listaConhecimentos.innerHTML = <p>${conhecimentosTexto}</p>;
 
             certificadosFiltrados.sort((a, b) => b.dataConclusao - a.dataConclusao);
 
@@ -185,15 +196,15 @@
                 const div = document.createElement("div");
                 div.classList.add("certificado");
 
-                const horasTexto = certificado.horas > 0 ? `${certificado.horas}h` : "";
+                const horasTexto = certificado.horas > 0 ? ${certificado.horas}h : "";
 
-                div.innerHTML = ` 
+                div.innerHTML =  
                     <iframe src="https://drive.google.com/file/d/${certificado.id}/preview?usp=sharing"></iframe>
                     <p><span class="tag">${certificado.tag}</span> ${certificado.nome} ${horasTexto}</p>
                     <p>Data de Conclusão: ${certificado.dataConclusao.toLocaleDateString("pt-BR")}</p>
-                    ${certificado.instituicao ? `<p class="instituicao">Instituição: ${certificado.instituicao}</p>` : ''}
+                    ${certificado.instituicao ? <p class="instituicao">Instituição: ${certificado.instituicao}</p> : ''}
                     <a href="https://drive.google.com/file/d/${certificado.id}/view" target="_blank">Acessar certificação</a>
-                `;
+                ;
 
                 container.appendChild(div);
             });
@@ -210,7 +221,7 @@
     function parseDate(dateStr) {
         const parts = dateStr.split('/');
         if (parts.length === 3) {
-            const date = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T00:00:00-03:00`);
+            const date = new Date(${parts[2]}-${parts[1]}-${parts[0]}T00:00:00-03:00);
             return isNaN(date) ? null : date;
         }
         return null;
