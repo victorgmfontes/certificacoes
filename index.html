@@ -149,74 +149,74 @@
     const planilhaURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWF5hRoi8gk3ERKeCSEBfiOtuCf9cTzX6pgQwp2Z_Uo4gYqE_aojJ9kaljHkSNRY8Fbq_4dY-52tn_/pub?output=csv";
 
     async function carregarCertificados() {
-        try {
-            const response = await fetch(planilhaURL);
-            if (!response.ok) throw new Error("Erro ao carregar a planilha");
+    try {
+        const response = await fetch(planilhaURL);
+        if (!response.ok) throw new Error("Erro ao carregar a planilha");
 
-            const data = await response.text();
-            const linhas = data.split("\n").slice(1);
-            const container = document.getElementById("certificados");
-            const listaConhecimentos = document.getElementById("listaConhecimentos");
-            container.innerHTML = ""; 
-            listaConhecimentos.innerHTML = "";  
+        const data = await response.text();
+        const linhas = data.split("\n").slice(1);
+        const container = document.getElementById("certificados");
+        const listaConhecimentos = document.getElementById("listaConhecimentos");
+        container.innerHTML = ""; 
+        listaConhecimentos.innerHTML = "";  
 
-            let totalHoras = 0;
+        let totalHoras = 0;
 
-            const certificados = linhas.map(linha => {
-                const colunas = linha.split(",");
-                if (colunas.length < 5) return null;
+        const certificados = linhas.map(linha => {
+            const colunas = linha.split(",");
+            if (colunas.length < 5) return null;
 
-                const tag = colunas[0].trim();
-                const nome = colunas[1].trim();
-                const horas = colunas[2].trim();
-                const id = colunas[3].trim().replace(/"/g, "");
-                const dataConclusaoStr = colunas[4].trim();
-                const instituicao = colunas[5] ? colunas[5].trim() : '';
-                const dataConclusao = parseDate(dataConclusaoStr);
+            const tag = colunas[0].trim();
+            const nome = colunas[1].trim();
+            const horas = colunas[2].trim();
+            const id = colunas[3].trim().replace(/"/g, "");
+            const dataConclusaoStr = colunas[4].trim();
+            const instituicao = colunas[5] ? colunas[5].trim() : '';
+            const dataConclusao = parseDate(dataConclusaoStr);
 
-                if (nome && id && dataConclusao) {
-                    const horasInt = isNaN(parseInt(horas, 10)) ? 0 : parseInt(horas, 10);
-                    totalHoras += horasInt;
-                    return { tag, nome, horas: horasInt, id, dataConclusao, instituicao };
-                }
-                return null;
-            }).filter(certificado => certificado !== null);
+            if (nome && id && dataConclusao) {
+                const horasInt = isNaN(parseInt(horas, 10)) ? 0 : parseInt(horas, 10);
+                totalHoras += horasInt;
+                return { tag, nome, horas: horasInt, id, dataConclusao, instituicao };
+            }
+            return null;
+        }).filter(certificado => certificado !== null);
 
-            // Agora todos os certificados serão exibidos, sem filtro
-            const certificadosFiltrados = certificados;
+        // Agora todos os certificados serão exibidos, sem filtro
+        const certificadosFiltrados = certificados;
 
-            const conhecimentosTexto = certificadosFiltrados.map(certificado => certificado.nome).join(", ");
-            listaConhecimentos.innerHTML = <p>${conhecimentosTexto}</p>;
+        const conhecimentosTexto = certificadosFiltrados.map(certificado => certificado.nome).join(", ");
+        listaConhecimentos.innerHTML = `<p>${conhecimentosTexto}</p>`;
 
-            certificadosFiltrados.sort((a, b) => b.dataConclusao - a.dataConclusao);
+        certificadosFiltrados.sort((a, b) => b.dataConclusao - a.dataConclusao);
 
-            document.getElementById("totalHoras").textContent = totalHoras;
+        document.getElementById("totalHoras").textContent = totalHoras;
 
-            certificadosFiltrados.forEach(certificado => {
-                const div = document.createElement("div");
-                div.classList.add("certificado");
+        certificadosFiltrados.forEach(certificado => {
+            const div = document.createElement("div");
+            div.classList.add("certificado");
 
-                const horasTexto = certificado.horas > 0 ? ${certificado.horas}h : "";
+            const horasTexto = certificado.horas > 0 ? `${certificado.horas}h` : "";
 
-                div.innerHTML =  
-                    <iframe src="https://drive.google.com/file/d/${certificado.id}/preview?usp=sharing"></iframe>
-                    <p><span class="tag">${certificado.tag}</span> ${certificado.nome} ${horasTexto}</p>
-                    <p>Data de Conclusão: ${certificado.dataConclusao.toLocaleDateString("pt-BR")}</p>
-                    ${certificado.instituicao ? <p class="instituicao">Instituição: ${certificado.instituicao}</p> : ''}
-                    <a href="https://drive.google.com/file/d/${certificado.id}/view" target="_blank">Acessar certificação</a>
-                ;
+            div.innerHTML = `
+                <iframe src="https://drive.google.com/file/d/${certificado.id}/preview?usp=sharing"></iframe>
+                <p><span class="tag">${certificado.tag}</span> ${certificado.nome} ${horasTexto}</p>
+                <p>Data de Conclusão: ${certificado.dataConclusao.toLocaleDateString("pt-BR")}</p>
+                ${certificado.instituicao ? `<p class="instituicao">Instituição: ${certificado.instituicao}</p>` : ''}
+                <a href="https://drive.google.com/file/d/${certificado.id}/view" target="_blank">Acessar certificação</a>
+            `;
 
-                container.appendChild(div);
-            });
+            container.appendChild(div);
+        });
 
-            // Ajuste a altura do iframe após o carregamento
-            ajustarAlturaIframe();
+        // Ajuste a altura do iframe após o carregamento
+        ajustarAlturaIframe();
 
-        } catch (error) {
-            console.error("Erro ao carregar certificados:", error);
-            document.getElementById("certificados").innerHTML = "<p>Erro ao carregar os certificados.</p>";
-        }
+    } catch (error) {
+        console.error("Erro ao carregar certificados:", error);
+        document.getElementById("certificados").innerHTML = "<p>Erro ao carregar os certificados.</p>";
     }
+}
 
     function parseDate(dateStr) {
         const parts = dateStr.split('/');
