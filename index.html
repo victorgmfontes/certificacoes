@@ -3,18 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Star_of_life.svg/1200px-Star_of_life.svg.png" type="image/x-icon">
- <!-- Open Graph Tags -->
+    <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Star_of_life.svg/1200px-Star_of_life.svg.png" type="image/x-icon">
+    
+    <!-- Open Graph Tags -->
     <meta property="og:title" content="Victor Fontes - Qualificações técnicas">
     <meta property="og:description" content="Confira meus certificados e habilidades na área de Urgência e Emergência!">
-    <meta property="og:image" content="https://i.imgur.com/FPJsk1Q.png"> <!-- Imagem personalizada -->
-    <meta property="og:url" content="https://victorgmfontes.github.io/certificacoes/"> <!-- URL do seu site -->
+    <meta property="og:image" content="https://i.imgur.com/FPJsk1Q.png">
+    <meta property="og:url" content="https://victorgmfontes.github.io/certificacoes/">
 
     <!-- Twitter Card Tags (opcional) -->
     <meta name="twitter:title" content="Portfólio de Certificados - Victor Fontes">
     <meta name="twitter:description" content="Confira meus certificados e habilidades na área de Urgência e Emergência!">
-    <meta name="twitter:image" content="https://i.imgur.com/FPJsk1Q.png"> <!-- Imagem personalizada -->
-    <meta name="twitter:card" content="summary_large_image"> 
+    <meta name="twitter:image" content="https://i.imgur.com/FPJsk1Q.png">
+    <meta name="twitter:card" content="summary_large_image">
 
     <title>Victor Fontes</title>
     <style>
@@ -32,22 +33,17 @@
             padding: 20px;
             display: flex;
             align-items: center;
-            justify-content: center; /* Centraliza horizontalmente */
-            gap: 20px; /* Espaço entre a logo e o texto */
+            justify-content: center;
+            gap: 20px;
         }
 
         .logo {
             height: 140px;
             width: auto;
         }
-        width: 100%;          /* A imagem ocupa 100% da largura do contêiner */
-        max-width: 600px;     /* Limita o tamanho máximo da imagem, pode ser ajustado conforme necessário */
-        height: auto;         /* Mantém a proporção original da imagem */
-        display: block;       /* Remove qualquer espaço abaixo da imagem */
-        margin: 0 auto;    
-        }
+
         .texto-container {
-            text-align: left; /* Alinha o texto à esquerda dentro do contêiner */
+            text-align: left;
         }
 
         h1 {
@@ -105,16 +101,15 @@
             color: #8B0000;
         }
 
-    /* Nova classe para as tags vermelhas */
-    .tag {
-        color: red;
-        font-weight: bold;
-    }
-        @media (max-width: 600px) {
-
-            .foto1 {
-            width: 100%;      /* Em telas menores, a imagem ocupará 100% da largura */
+        .tag {
+            color: red;
+            font-weight: bold;
         }
+
+        @media (max-width: 600px) {
+            .foto1 {
+                width: 100%;
+            }
             
             #listaConhecimentos {
                 text-align: center;
@@ -128,12 +123,12 @@
         <img src="https://i.imgur.com/VEkok6b.png" alt="Logomarca" class="logo">
         <div class="texto-container">
             <h1>Victor Fontes</h1>
-            <p>Técnico em Enfermagem | <I>Coren-PE 2094325-TE</I></p>
+            <p>Técnico em Enfermagem | <i>Coren-PE 2094325-TE</i></p>
         </div>
     </header>
     <p class="total-horas">Profissional Oriundo da Saúde com mais de: <span id="totalHoras">0</span>hrs acumuladas</p>
 
-     <section id="conhecimentos" class="lista-conhecimentos">
+    <section id="conhecimentos" class="lista-conhecimentos">
         <img src="https://i.imgur.com/FPJsk1Q.png" alt="foto" class="foto1">
     </section>
     
@@ -146,103 +141,94 @@
     </section>
 
     <script>
-    const planilhaURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWF5hRoi8gk3ERKeCSEBfiOtuCf9cTzX6pgQwp2Z_Uo4gYqE_aojJ9kaljHkSNRY8Fbq_4dY-52tn_/pub?output=csv";
+        const planilhaURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWF5hRoi8gk3ERKeCSEBfiOtuCf9cTzX6pgQwp2Z_Uo4gYqE_aojJ9kaljHkSNRY8Fbq_4dY-52tn_/pub?output=csv";
 
-    async function carregarCertificados() {
-    try {
-        const response = await fetch(planilhaURL);
-        if (!response.ok) throw new Error("Erro ao carregar a planilha");
+        async function carregarCertificados() {
+            try {
+                const response = await fetch(planilhaURL);
+                if (!response.ok) throw new Error("Erro ao carregar a planilha");
 
-        const data = await response.text();
-        const linhas = data.split("\n").slice(1);
-        const container = document.getElementById("certificados");
-        const listaConhecimentos = document.getElementById("listaConhecimentos");
-        container.innerHTML = ""; 
-        listaConhecimentos.innerHTML = "";  
+                const data = await response.text();
+                const linhas = data.split("\n").slice(1);
+                const container = document.getElementById("certificados");
+                const listaConhecimentos = document.getElementById("listaConhecimentos");
+                container.innerHTML = ""; 
+                listaConhecimentos.innerHTML = "";  
 
-        let totalHoras = 0;
+                let totalHoras = 0;
 
-        const certificados = linhas.map(linha => {
-            const colunas = linha.split(",");
-            if (colunas.length < 5) return null;
+                const certificados = linhas.map(linha => {
+                    const colunas = linha.split(",");
+                    if (colunas.length < 5) return null;
 
-            const tag = colunas[0].trim();
-            const nome = colunas[1].trim();
-            const horas = colunas[2].trim();
-            const id = colunas[3].trim().replace(/"/g, "");
-            const dataConclusaoStr = colunas[4].trim();
-            const instituicao = colunas[5] ? colunas[5].trim() : '';
-            const dataConclusao = parseDate(dataConclusaoStr);
+                    const tag = colunas[0].trim();
+                    const nome = colunas[1].trim();
+                    const horas = colunas[2].trim();
+                    const id = colunas[3].trim().replace(/"/g, "");
+                    const dataConclusaoStr = colunas[4].trim();
+                    const instituicao = colunas[5] ? colunas[5].trim() : '';
+                    const dataConclusao = parseDate(dataConclusaoStr);
 
-            if (nome && id && dataConclusao) {
-                const horasInt = isNaN(parseInt(horas, 10)) ? 0 : parseInt(horas, 10);
-                totalHoras += horasInt;
-                return { tag, nome, horas: horasInt, id, dataConclusao, instituicao };
+                    if (nome && id && dataConclusao) {
+                        const horasInt = isNaN(parseInt(horas, 10)) ? 0 : parseInt(horas, 10);
+                        totalHoras += horasInt;
+                        return { tag, nome, horas: horasInt, id, dataConclusao, instituicao };
+                    }
+                    return null;
+                }).filter(certificado => certificado !== null);
+
+                const conhecimentosTexto = certificados.map(certificado => certificado.nome).join(", ");
+                listaConhecimentos.innerHTML = `<p>${conhecimentosTexto}</p>`;
+
+                certificados.sort((a, b) => b.dataConclusao - a.dataConclusao);
+
+                document.getElementById("totalHoras").textContent = totalHoras;
+
+                certificados.forEach(certificado => {
+                    const div = document.createElement("div");
+                    div.classList.add("certificado");
+
+                    const horasTexto = certificado.horas > 0 ? `${certificado.horas}h` : "";
+
+                    div.innerHTML = `
+                        <iframe src="https://drive.google.com/file/d/${certificado.id}/preview?usp=sharing"></iframe>
+                        <p><span class="tag">${certificado.tag}</span> ${certificado.nome} ${horasTexto}</p>
+                        <p>Data de Conclusão: ${certificado.dataConclusao.toLocaleDateString("pt-BR")}</p>
+                        ${certificado.instituicao ? `<p class="instituicao">Instituição: ${certificado.instituicao}</p>` : ''}
+                        <a href="https://drive.google.com/file/d/${certificado.id}/view" target="_blank">Acessar certificação</a>
+                    `;
+
+                    container.appendChild(div);
+                });
+
+                ajustarAlturaIframe();
+            } catch (error) {
+                console.error("Erro ao carregar certificados:", error);
+                document.getElementById("certificados").innerHTML = "<p>Erro ao carregar os certificados.</p>";
+            }
+        }
+
+        function parseDate(dateStr) {
+            const parts = dateStr.split('/');
+            if (parts.length === 3) {
+                const date = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T00:00:00-03:00`);
+                return isNaN(date) ? null : date;
             }
             return null;
-        }).filter(certificado => certificado !== null);
-
-        // Agora todos os certificados serão exibidos, sem filtro
-        const certificadosFiltrados = certificados;
-
-        const conhecimentosTexto = certificadosFiltrados.map(certificado => certificado.nome).join(", ");
-        listaConhecimentos.innerHTML = `<p>${conhecimentosTexto}</p>`;
-
-        certificadosFiltrados.sort((a, b) => b.dataConclusao - a.dataConclusao);
-
-        document.getElementById("totalHoras").textContent = totalHoras;
-
-        certificadosFiltrados.forEach(certificado => {
-            const div = document.createElement("div");
-            div.classList.add("certificado");
-
-            const horasTexto = certificado.horas > 0 ? `${certificado.horas}h` : "";
-
-            div.innerHTML = `
-                <iframe src="https://drive.google.com/file/d/${certificado.id}/preview?usp=sharing"></iframe>
-                <p><span class="tag">${certificado.tag}</span> ${certificado.nome} ${horasTexto}</p>
-                <p>Data de Conclusão: ${certificado.dataConclusao.toLocaleDateString("pt-BR")}</p>
-                ${certificado.instituicao ? `<p class="instituicao">Instituição: ${certificado.instituicao}</p>` : ''}
-                <a href="https://drive.google.com/file/d/${certificado.id}/view" target="_blank">Acessar certificação</a>
-            `;
-
-            container.appendChild(div);
-        });
-
-        // Ajuste a altura do iframe após o carregamento
-        ajustarAlturaIframe();
-
-    } catch (error) {
-        console.error("Erro ao carregar certificados:", error);
-        document.getElementById("certificados").innerHTML = "<p>Erro ao carregar os certificados.</p>";
-    }
-}
-
-    function parseDate(dateStr) {
-        const parts = dateStr.split('/');
-        if (parts.length === 3) {
-            const date = new Date(${parts[2]}-${parts[1]}-${parts[0]}T00:00:00-03:00);
-            return isNaN(date) ? null : date;
         }
-        return null;
-    }
 
-    function ajustarAlturaIframe() {
-        const iframes = document.querySelectorAll('iframe');
-        iframes.forEach(iframe => {
-            // Ajuste a altura do iframe baseado na sua largura (proporção do PDF)
-            const largura = iframe.offsetWidth;
-            iframe.style.height = (largura * 1.4) + 'px';  // Ajuste a proporção conforme necessário
-        });
-    }
+        function ajustarAlturaIframe() {
+            const iframes = document.querySelectorAll('iframe');
+            iframes.forEach(iframe => {
+                const largura = iframe.offsetWidth;
+                iframe.style.height = (largura * 1.4) + 'px';
+            });
+        }
 
-    // Chame a função de ajuste após o carregamento da página
-    window.addEventListener('load', ajustarAlturaIframe);
+        window.addEventListener('load', ajustarAlturaIframe);
+        window.addEventListener('resize', ajustarAlturaIframe);
 
-    // Ajuste após o redimensionamento da janela
-    window.addEventListener('resize', ajustarAlturaIframe);
-
-    carregarCertificados();
+        carregarCertificados();
     </script>
 </body>
 </html>
